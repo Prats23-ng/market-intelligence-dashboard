@@ -1,7 +1,10 @@
 import { Activity } from "lucide-react"
-import { tickers, lastUpdated } from "@/lib/dashboard-data"
+import { getLiveTickers, getLiveTimestamp } from "@/lib/live-market-data"
 
-export function DashboardHeader() {
+export async function DashboardHeader() {
+  const tickers = await getLiveTickers()
+  const updatedLabel = getLiveTimestamp()
+
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
@@ -42,7 +45,7 @@ export function DashboardHeader() {
           <Activity className="size-3.5 text-positive" aria-hidden="true" />
           <span className="font-mono text-xs text-muted-foreground">
             <span className="hidden sm:inline">Updated </span>
-            {lastUpdated}
+            {updatedLabel}
           </span>
         </div>
       </div>

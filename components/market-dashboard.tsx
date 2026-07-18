@@ -9,7 +9,7 @@ export async function MarketDashboard() {
   return (
     <section id="markets" className="scroll-mt-28">
       <SectionHeader
-        index="02"
+        index="03"
         title="Market Dashboard"
         subtitle="Live snapshot across indices, currency, commodities and crypto."
         icon={<LineChart className="size-4" />}

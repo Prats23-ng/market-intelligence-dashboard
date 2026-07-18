@@ -7,14 +7,14 @@
 //   - Next.js serves the cached response instantly, and refreshes it in the
 //     background at most once every 15 minutes (stale-while-revalidate).
 //   - If Yahoo's endpoint is ever down or rate-limits us, we fall back to the
-//     static `tickers` array so the dashboard never breaks.
+//     static `tickers` / `bfsi` arrays so the dashboard never breaks.
 //
 // If Yahoo's unofficial endpoint becomes unreliable, swap BASE_URL for a paid
 // provider like Twelve Data (https://twelvedata.com) — the shape returned by
-// `mapToTickers` is the only thing that would need updating.
+// `mapToTickers` / `getLiveBfsiStocks` is the only thing that would need updating.
 
-import type { MarketTicker } from "@/lib/dashboard-data"
-import { tickers as staticTickers } from "@/lib/dashboard-data"
+import type { MarketTicker, BfsiStock } from "@/lib/dashboard-data"
+import { tickers as staticTickers, bfsi as staticBfsi } from "@/lib/dashboard-data"
 
 const YAHOO_SYMBOLS: { symbol: string; name: string; yahooTicker: string }[] = [
   { symbol: "NIFTY 50", name: "NSE Benchmark", yahooTicker: "^NSEI" },
@@ -22,6 +22,40 @@ const YAHOO_SYMBOLS: { symbol: string; name: string; yahooTicker: string }[] = [
   { symbol: "BANK NIFTY", name: "Banking Index", yahooTicker: "^NSEBANK" },
   { symbol: "INDIA VIX", name: "Volatility Index", yahooTicker: "^INDIAVIX" },
   { symbol: "USD / INR", name: "Rupee Spot", yahooTicker: "USDINR=X" },
+]
+
+// NSE-listed equities use the ".NS" suffix on Yahoo Finance.
+const BFSI_YAHOO_SYMBOLS: { name: string; ticker: string; yahooTicker: string; note: string }[] = [
+  {
+    name: "HDFC Bank",
+    ticker: "HDFCBANK",
+    yahooTicker: "HDFCBANK.NS",
+    note: "Deposit growth re-accelerating post-merger; NIM stabilising.",
+  },
+  {
+    name: "ICICI Bank",
+    ticker: "ICICIBANK",
+    yahooTicker: "ICICIBANK.NS",
+    note: "Best-in-class return ratios; steady retail and SME momentum.",
+  },
+  {
+    name: "Kotak Mahindra",
+    ticker: "KOTAKBANK",
+    yahooTicker: "KOTAKBANK.NS",
+    note: "Digital embargo overhang lingers; valuation now less demanding.",
+  },
+  {
+    name: "Angel One",
+    ticker: "ANGELONE",
+    yahooTicker: "ANGELONE.NS",
+    note: "Discount-broking volumes strong; F&O regulation a watch item.",
+  },
+  {
+    name: "Jio Financial",
+    ticker: "JIOFIN",
+    yahooTicker: "JIOFIN.NS",
+    note: "Scaling lending and payments; optionality on AMC/insurance JV.",
+  },
 ]
 
 const YAHOO_BASE_URL = "https://query1.finance.yahoo.com/v8/finance/chart/"
@@ -69,6 +103,19 @@ function formatValue(price: number, symbol: string): string {
   return price.toLocaleString("en-IN", { maximumFractionDigits: 2 })
 }
 
+export function getLiveTimestamp(): string {
+  const formatted = new Date().toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Kolkata",
+  })
+  return `${formatted} IST`
+}
+
 export async function getLiveTickers(): Promise<MarketTicker[]> {
   try {
     const results = await Promise.all(
@@ -94,5 +141,30 @@ export async function getLiveTickers(): Promise<MarketTicker[]> {
     // the static illustrative data rather than showing a broken dashboard.
     console.error("[live-market-data] Falling back to static tickers:", err)
     return staticTickers
+  }
+}
+
+export async function getLiveBfsiStocks(): Promise<BfsiStock[]> {
+  try {
+    const results = await Promise.all(
+      BFSI_YAHOO_SYMBOLS.map(async ({ name, ticker, yahooTicker, note }) => {
+        const quote = await fetchOneQuote(yahooTicker)
+        const trend: "up" | "down" = quote.change >= 0 ? "up" : "down"
+        const sign = quote.change >= 0 ? "+" : ""
+
+        return {
+          name,
+          ticker,
+          price: quote.price.toLocaleString("en-IN", { maximumFractionDigits: 2 }),
+          change: `${sign}${quote.changePercent.toFixed(2)}%`,
+          trend,
+          note,
+        } satisfies BfsiStock
+      }),
+    )
+    return results
+  } catch (err) {
+    console.error("[live-market-data] Falling back to static BFSI stocks:", err)
+    return staticBfsi
   }
 }

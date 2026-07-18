@@ -11,9 +11,11 @@ import { IndiaMacroDashboard } from "@/components/india-macro-dashboard"
 import { CapitalMarketsMonitor } from "@/components/capital-markets-monitor"
 import { CompanyFocus } from "@/components/company-focus"
 import { TodaysDebate } from "@/components/todays-debate"
-import { lastUpdated } from "@/lib/dashboard-data"
+import { getLiveTimestamp } from "@/lib/live-market-data"
 
 export default function Page() {
+  const lastUpdated = getLiveTimestamp()
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />

@@ -6,7 +6,7 @@ export function WhatMattersToday() {
   return (
     <section id="news" className="scroll-mt-28">
       <SectionHeader
-        index="03"
+        index="02"
         title="What Matters Today"
         subtitle="Top headlines decoded — why they matter and the likely market impact."
         icon={<Newspaper className="size-4" />}

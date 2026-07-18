@@ -1,8 +1,10 @@
 import { Landmark, ArrowUpRight, ArrowDownRight } from "lucide-react"
-import { bfsi } from "@/lib/dashboard-data"
+import { getLiveBfsiStocks } from "@/lib/live-market-data"
 import { SectionHeader } from "@/components/section-header"
 
-export function BfsiWatch() {
+export async function BfsiWatch() {
+  const bfsi = await getLiveBfsiStocks()
+
   return (
     <section id="bfsi" className="scroll-mt-28">
       <SectionHeader

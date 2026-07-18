@@ -408,17 +408,17 @@ export interface MacroIndicator {
 export const indiaMacro: MacroIndicator[] = [
   {
     name: "Repo Rate",
-    value: "6.50%",
-    trend: "down",
-    delta: "Hold (easing bias)",
-    interpretation: "Peak rates likely behind us; first cut expected in H2 as disinflation holds.",
+    value: "5.25%",
+    trend: "up",
+    delta: "Hold since Feb '26",
+    interpretation: "MPC on pause after a 100bps easing cycle in 2025; a reaccelerating CPI print raises the bar for further cuts.",
   },
   {
     name: "CPI Inflation",
-    value: "4.10%",
-    trend: "down",
-    delta: "-0.6pp MoM",
-    interpretation: "Now within the RBI's tolerance band and below the 4% glide-path stress zone.",
+    value: "4.38%",
+    trend: "up",
+    delta: "+0.44pp MoM",
+    interpretation: "June print at an 18-month high on food and fuel; economists now flag hike risk at the August MPC meeting rather than a cut.",
   },
   {
     name: "GDP Growth",
